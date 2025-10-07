@@ -22,7 +22,7 @@
     <div class="display" id="display">0</div>
     <div class="buttons">
         <button class="clear" id="clear">C</button>
-        <button class="operator disabled" id="divide">/</button> <button class="operator disabled" id="multiply">*</button> <button class="number">7</button>
+        <button class="operator disabled" id="divide">/</button> <button class="operator" id="multiply">*</button> <button class="number">7</button>
         <button class="number">8</button>
         <button class="number">9</button>
         <button class="operator" id="subtract">-</button>
@@ -74,6 +74,7 @@
             switch (operator) {
                 case '+': result = firstOperand + secondOperand; break;
                 case '-': result = firstOperand - secondOperand; break;
+                case '*': result = firstOperand * secondOperand; break;
             }
             currentInput = result.toString();
             operator = null;
