@@ -7,5 +7,5 @@ Add short description for pull request changes
 ### 📸 Screenshots or videos (optional)
 Add some screenshots or videos
 
-## 📋 Pull request checklist (optional)
+### 📋 Pull request checklist (for release tickets only)
 - [ ] Manual testing passed
