@@ -74,14 +74,7 @@
             switch (operator) {
                 case '+': result = firstOperand + secondOperand; break;
                 case '-': result = firstOperand - secondOperand; break;
-                case '/':
-                    if (secondOperand === 0) {
-                        alert("Error: Division by zero!");
-                        result = 0;
-                    } else {
-                        result = firstOperand / secondOperand;
-                    }
-                    break;
+                case '/': result = firstOperand / secondOperand; break;
             }
             currentInput = result.toString();
             operator = null;
