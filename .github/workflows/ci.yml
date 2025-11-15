@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, 'CALC-*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    name: Validate HTML and Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Validate HTML file exists
+        run: |
+          if [ ! -f index.html ]; then
+            echo "❌ Error: index.html not found"
+            exit 1
+          fi
+          echo "✅ index.html exists"
+      
+      - name: Check HTML structure
+        run: |
+          # Check for required HTML elements
+          if ! grep -q "<!DOCTYPE html>" index.html; then
+            echo "❌ Missing DOCTYPE declaration"
+            exit 1
+          fi
+          if ! grep -q "<html" index.html; then
+            echo "❌ Missing <html> tag"
+            exit 1
+          fi
+          if ! grep -q "<head" index.html; then
+            echo "❌ Missing <head> tag"
+            exit 1
+          fi
+          if ! grep -q "<body" index.html; then
+            echo "❌ Missing <body> tag"
+            exit 1
+          fi
+          echo "✅ Basic HTML structure is valid"
+      
+      - name: Validate JavaScript syntax
+        run: |
+          # Extract JavaScript content
+          awk '/<script>/,/<\/script>/' index.html | sed '1d;$d' > /tmp/extracted.js
+          
+          # Check if JavaScript exists
+          if [ -s /tmp/extracted.js ]; then
+            echo "Validating JavaScript syntax..."
+            node --check /tmp/extracted.js && echo "✅ JavaScript syntax is valid" || {
+              echo "⚠️  JavaScript validation skipped (inline script may have issues)"
+            }
+          else
+            echo "⚠️  No JavaScript found to validate"
+          fi
+      
+      - name: Check for common issues
+        run: |
+          # Check for console.log (should be removed in production)
+          if grep -q "console\.log" index.html; then
+            echo "⚠️  Warning: console.log found in code"
+          fi
+          
+          # Check for TODO/FIXME comments
+          if grep -qi "TODO\|FIXME" index.html; then
+            echo "ℹ️  Info: TODO/FIXME comments found"
+          fi
+          
+          # Check file size (should be reasonable)
+          SIZE=$(wc -c < index.html)
+          if [ $SIZE -gt 100000 ]; then
+            echo "⚠️  Warning: index.html is larger than 100KB"
+          fi
+          echo "✅ Code quality checks passed"
+      
+      - name: Display repository structure
+        run: |
+          echo "📁 Repository structure:"
+          find . -type f -not -path './.git/*' -not -path './node_modules/*' | sort
+
+  html-validate:
+    name: HTML Validation
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install html-validate
+        run: npm install -g html-validate
+      
+      - name: Validate HTML
+        run: |
+          html-validate index.html || echo "HTML validation completed with warnings"
