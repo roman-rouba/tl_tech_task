@@ -1,0 +1,51 @@
+name: Code quality
+
+on:
+  pull_request:
+    branches:
+      - main
+      - development
+
+  push:
+    branches:
+      - main
+      - development
+
+  merge_group:
+
+jobs:
+  check:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: HTML
+            command: npm run lint:html
+
+          - name: CSS
+            command: npm run lint:css
+
+          - name: JavaScript
+            command: npm run lint:js
+
+          - name: Formatting
+            command: npm run format:check
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ${{ matrix.name }} check
+        run: ${{ matrix.command }}

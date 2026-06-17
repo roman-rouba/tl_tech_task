@@ -1,0 +1,27 @@
+#!/bin/sh
+
+commit_msg_file="$1"
+
+commit_msg="$(grep -v '^#' "$commit_msg_file" | sed '/^[[:space:]]*$/d' | head -n 1)"
+
+pattern='^[A-Z][A-Z0-9]*-[0-9]+: .+$'
+
+if ! echo "$commit_msg" | grep -Eq "$pattern"; then
+  echo ""
+  echo "Invalid commit message."
+  echo ""
+  echo "Expected format:"
+  echo "  JIRA-123: short description"
+  echo ""
+  echo "Examples:"
+  echo "  CALC-3: enable multiplication"
+  echo "  AUTH-12: fix login validation"
+  echo "  UI-101: improve button styles"
+  echo ""
+  echo "Your message:"
+  echo "  $commit_msg"
+  echo ""
+  exit 1
+fi
+
+exit 0
